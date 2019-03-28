@@ -82,7 +82,7 @@ if __name__ == '__main__':
     if options.resize:
         command.extend(['-vf',  'scale=' + options.resize])
 
-    WORKING_DIR = '/tmp/gif-frames'  # en linux '/tmp/gif-frames'
+    WORKING_DIR = 'work/frames/gif-frames'  # en linux '/tmp/gif-frames'
     working_dir = os.path.join(os.path.abspath(os.getcwd()), WORKING_DIR)
     print(working_dir)
     working_app = os.path.dirname(__file__)
