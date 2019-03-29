@@ -42,11 +42,16 @@ class GuiMovieToGif(tk.Tk):
         self.box_list.bind('<Double-Button-1>', self.double_button_box_list)
         self.box_list.bind('<ButtonRelease-1>', self.buttonrelease)
         self.box_list.bind("<Key>", self.presskey)
+        self.box_list.focus_set()
         self.file_select = tk.StringVar();
 
 
 
     def presskey(self, event):
+        '''
+         bind("<Key>", self.presskey)
+         select item with keyboard Up / Down
+        '''
         print('presskey ->', event)
         print('len = ', len(self.box_list.get(0,'end'))-1)
         w=event.widget
@@ -73,6 +78,14 @@ class GuiMovieToGif(tk.Tk):
          localiza la direccion absoluta del fichero y asigna su cadena
          a la barra de estado y almacnea su valor ne la variable de file_select
         '''
+        
+        """
+        comprobar si existe el fichero adicionar o hacer algo para corregir
+        la deficiencia -> perdida de la direccion path absoluta
+        """
+        if not os.path.isdir(self.dirpathmovies.get()):
+            dir = os.path.dirname(self.file_select.get())
+            self.dirpathmovies.set(dir)
         selected = os.path.join(self.dirpathmovies.get(), self.box_list.get(item))
         self.statusvalor.set(os.path.abspath(selected))
         self.file_select.set(self.statusvalor.get())
@@ -127,6 +140,7 @@ class GuiMovieToGif(tk.Tk):
                 self.box_list.insert(0, file)
             if file.endswith(".flv"):
                 self.box_list.insert(tk.END, file)
+        self.box_list.selection_set(0)
 
 if __name__ == '__main__':
     
