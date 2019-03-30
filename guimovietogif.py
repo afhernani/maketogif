@@ -5,6 +5,12 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog, messagebox
 import os
+import sys
+import subprocess
+import re
+import io
+import shutil
+
 
 class GuiMovieToGif(tk.Tk):
     def __init__(self):
@@ -43,7 +49,7 @@ class GuiMovieToGif(tk.Tk):
         self.box_list.bind('<ButtonRelease-1>', self.buttonrelease)
         self.box_list.bind("<Key>", self.presskey)
         self.box_list.focus_set()
-        self.file_select = tk.StringVar();
+        self.file_select = tk.StringVar()
 
 
 
@@ -125,6 +131,10 @@ class GuiMovieToGif(tk.Tk):
     def make_gif(self):
         print('make gif instruction')
         self.statusvalor.set('make gif instruction')
+        if os.path.exists(self.file_select.get()):
+            datos = self.info_from_video()
+            print('datos video ->', datos)
+
 
     def confirmExit(self):
         if messagebox.askokcancel('Quit', 'Are you sure you want to exit?'):
@@ -141,6 +151,73 @@ class GuiMovieToGif(tk.Tk):
             if file.endswith(".flv"):
                 self.box_list.insert(tk.END, file)
         self.box_list.selection_set(0)
+
+    def printOutput(self, string):
+        '''
+        Pretty print multi-line string
+        '''
+        for line in string.splitlines():
+            print('    >> {}'.format(line.decode('utf8')))
+
+    def runCommand(self, command):
+        p = subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
+        while True and p:
+            line = p.readline()
+            if not line:
+                break
+            self.printOutput(line)
+
+    def info_from_video(self):
+        print('extrac_images_from_videos')
+        command = ['ffmpeg', '-i', self.file_select.get()]
+        video_info = {}
+        try:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stdout, stderr = process.communicate()
+
+            matches = re.search(b'Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),',
+                                stdout, re.DOTALL).groupdict()
+            if matches:
+                t_hour = matches['hours']
+                t_min = matches['minutes']
+                t_sec = matches['seconds']
+
+                t_hour_sec = int(t_hour) * 3600
+                t_min_sec = int(t_min) * 60
+                t_s_sec = float(t_sec)
+
+                total_sec = t_hour_sec + t_min_sec + t_s_sec
+                video_info['time']=total_sec
+                print('hora, minuto, segundo:', t_hour, t_min, t_sec)
+                print('total de segundos:', total_sec)
+
+            # This matches1 is to get the frames por segundo
+            matches1 = re.search(b'(?P<fps>(\d+.)* fps)', stdout)
+            if matches1:
+                print('fps ->', matches1['fps'])
+                frame_rate = matches1['fps'].split(b' ')[0]
+                video_info['fps'] = float(frame_rate)
+                print('fps ->', float(frame_rate))
+
+            matches2 = re.search(b'(?P<width>\s{1}\d+)x(?P<heigh>\d{2,3})', stdout)
+            if matches2:
+                width = int(matches2['width'])
+                heigh = int(matches2['heigh'])
+                print('formato: ->', matches2, width, heigh)
+                video_info['formato'] = [width, heigh]
+
+
+            #averiaguar el ratio.
+            matches3 = re.search(b'bitrate:\s{1}(?P<bitrate>\d+?)\s{1}', stdout)
+            if matches3:
+                print('matches3 ->', matches3['bitrate'])
+                video_info['bitrate'] = int(matches3['bitrate'])
+
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+
+        return video_info
+
 
 if __name__ == '__main__':
     
