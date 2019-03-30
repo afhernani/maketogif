@@ -36,5 +36,5 @@ Options:
 ### Mejoras.
 
 +	Depurar color, mono y gray, aunque en un futuro sean obciones a eliminar.
-+    Definir un numero n de imagenes para procesar la cantidad de imagenes a realizar.
-+    Hacer uso de tareas en los procesos.
++   Definir un numero n de imagenes para procesar la cantidad de imagenes a realizar.
++   Hacer uso de tareas en los procesos.
