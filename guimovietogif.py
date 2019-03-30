@@ -17,8 +17,8 @@ class GuiMovieToGif(tk.Tk):
         self.toplayout = tk.LabelFrame(self)
         self.search_button=tk.Button(self.toplayout, text='...', command=self.search_directory)
         self.make_button= tk.Button(self.toplayout, text='Make', command=self.make_gif)
-
-        self.dirpathmovies = tk.StringVar(value=os.path.split(os.path.abspath(__file__))[0])
+        dirpath = os.path.abspath(os.path.split(os.path.abspath(__file__))[0])
+        self.dirpathmovies = tk.StringVar(value=dirpath)
         print(self.dirpathmovies.get())
         self.entrydirmovies= tk.Entry(self.toplayout, textvar=self.dirpathmovies)
 
@@ -118,9 +118,9 @@ class GuiMovieToGif(tk.Tk):
         print('search directory instruction')
         self.statusvalor.set('select directory where are movies files to make gif')
         dirname = filedialog.askdirectory(initialdir=self.dirpathmovies.get(), title="Select directory")
-        if not dirname=="":
-            self.dirpathmovies.set(dirname)
-            self.init_listbox(dirname)
+        if not dirname == "":
+            self.dirpathmovies.set(os.path.abspath(dirname))
+            self.init_listbox(os.path.abspath(dirname))
 
     def make_gif(self):
         print('make gif instruction')
