@@ -70,7 +70,7 @@ if __name__ == '__main__':
     if options.fps:
         fps = options.fps
     else:
-        fps = fps.decode('utf-8');
+        fps = fps.decode('utf-8')
         match = re.search('(\d\d) fps', fps)
         if match is None:
             print('FPS not found')
