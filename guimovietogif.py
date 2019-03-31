@@ -10,6 +10,7 @@ import subprocess
 import re
 import io
 import shutil
+import configparser
 
 
 class GuiMovieToGif(tk.Tk):
@@ -30,29 +31,60 @@ class GuiMovieToGif(tk.Tk):
         self.entrydirmovies= tk.Entry(self.toplayout, textvar=self.dirpathmovies)
 
         self.entrydirmovies.pack(side=tk.LEFT, fill=tk.X, expand=1)
-        
+
         self.make_button.pack(side=tk.RIGHT)
         self.search_button.pack(side=tk.RIGHT)
-        
+
         self.toplayout.pack(side=tk.TOP, fill=tk.X)
-        
+
         self.box_list = tk.Listbox(self)
         self.box_list.pack(fill=tk.BOTH, expand=True)
-        
-        self.statusvalor = tk.StringVar(value="processing ...")
-        self.status = tk.Label(self, text="processing…", textvar=self.statusvalor, bd=1, anchor='w', relief='sunken') # 
-        self.status.pack(side='bottom', fill='x') 
 
-        # inicializa la lista.
-        self.init_listbox(self.dirpathmovies.get())
+        self.statusvalor = tk.StringVar(value="processing ...")
+        self.status = tk.Label(self, text="processing…", textvar=self.statusvalor, bd=1, anchor='w', relief='sunken') #
+        self.status.pack(side='bottom', fill='x')
+
+
         # adicionamos utilidades con el raton y teclado para la lisbox.
         self.box_list.bind('<Double-Button-1>', self.double_button_box_list)
         self.box_list.bind('<ButtonRelease-1>', self.buttonrelease)
         self.box_list.bind("<Key>", self.presskey)
         self.box_list.focus_set()
         self.file_select = tk.StringVar()
+        self.setingfile = 'seting.ini'
+        self.get_init_status()
 
+    def get_init_status(self):
+        '''
+        extract init status of app
+        Return:
+        '''
+        if not os.path.exists(self.setingfile):
+            # inicializa la lista directorio actual
+            self.init_listbox(self.dirpathmovies.get())
+            return
+        config= configparser.RawConfigParser()
+        config.read(self.setingfile)
+        dirpathmovies = config.get('Setings', 'dirpathmovies')
+        if os.path.exists(dirpathmovies):
+            self.dirpathmovies.set(dirpathmovies)
+            # inicializa la lista con directorio duardao
+            self.init_listbox(self.dirpathmovies.get())
+        else:
+            self.init_listbox(self.dirpathmovies.get())
+        pass
 
+    def set_init_status(self):
+        '''
+        write init status of app
+        Return:
+        '''
+        config = configparser.RawConfigParser()
+        config.add_section('Setings')
+        config.set('Setings', 'dirpathmovies', self.dirpathmovies.get())
+        with open(self.setingfile, 'w') as configfile:
+            config.write(configfile)
+        print('Write config file')
 
     def presskey(self, event):
         '''
@@ -78,14 +110,14 @@ class GuiMovieToGif(tk.Tk):
             self.box_list.selection_set(iter)
             self.selected_item_path(iter)
             print("selected ->", w.get(iter))
-        
+
     def selected_item_path(self, item):
         '''
          item -> int elemento de la lista,
          localiza la direccion absoluta del fichero y asigna su cadena
          a la barra de estado y almacnea su valor ne la variable de file_select
         '''
-        
+
         """
         comprobar si existe el fichero adicionar o hacer algo para corregir
         la deficiencia -> perdida de la direccion path absoluta
@@ -105,7 +137,7 @@ class GuiMovieToGif(tk.Tk):
         item = self.box_list.nearest(event.y)
         print('valor =', self.box_list.get(item))
         self.selected_item_path(item)
-        
+
 
     def double_button_box_list(self, event):
         print('double_button_box_list')
@@ -143,8 +175,9 @@ class GuiMovieToGif(tk.Tk):
 
     def confirmExit(self):
         if messagebox.askokcancel('Quit', 'Are you sure you want to exit?'):
+            self.set_init_status()
             self.destroy()
-            print('end process')
+        print('end process')
 
     def init_listbox(self, search_dir):
         """ listar los ficheros en el directorio."""
@@ -266,6 +299,7 @@ class GuiMovieToGif(tk.Tk):
         working_file = self.datos['working_file']
         work_dir = os.path.join(working_file, name)
         command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir, '-vf', 'scale=' + scale ]
+        self.datos['file']= os.path.split(self.file_select.get())[-1]
         file_out = os.path.join(self.dirpathmovies.get(), 'Thumbails', os.path.split(self.file_select.get())[-1] + '_thumbs_0000.gif')
         command.extend([file_out])
         print('create gif command ->', command)
@@ -284,7 +318,7 @@ class GuiMovieToGif(tk.Tk):
 
 
 if __name__ == '__main__':
-    
+
     print('init process: ')
     app = GuiMovieToGif()
     app.mainloop()
