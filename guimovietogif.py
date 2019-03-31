@@ -137,6 +137,7 @@ class GuiMovieToGif(tk.Tk):
             self.datos = self.info_from_video()
             print('datos video ->', self.datos)
             self.extract_frames(num=5)
+            self.make_gif_f_frames()
 
 
     def confirmExit(self):
@@ -234,11 +235,11 @@ class GuiMovieToGif(tk.Tk):
         if not num:
             num = 1
         import uuid
-        name = str(uuid.uuid4())
+        name = str(uuid.uuid4()) + '-%04d.png'
         self.datos['code_frame'] = name
-        name = name + '-%04d.png'
         #working file:
         working_file = os.path.join(self.dirpathmovies.get(), 'Thumbails')
+        self.datos['working_file'] = working_file
         if not os.path.exists(working_file):
             os.mkdir(working_file)
         # ficheros de frames de salida
@@ -254,6 +255,21 @@ class GuiMovieToGif(tk.Tk):
         print('Linea de comando ->', command)
         self.runCommand(command)
         print('end extract_frames')
+
+    def make_gif_f_frames(self, framerate=1, scale='200:-1'):
+        '''
+        make a gif from cedec frame
+        :return:
+        '''
+        name = self.datos['code_frame']
+        working_file = self.datos['working_file']
+        work_dir = os.path.join(working_file, name)
+        command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir, '-vf', 'scale=' + scale ]
+        file_out = os.path.join(self.dirpathmovies.get(), 'Thumbails', os.path.split(self.file_select.get())[-1] + '_thumbs_0000.gif')
+        command.extend([file_out])
+        print('create gif command ->', command)
+        self.runCommand(command)
+        print('make_gif_f_frames')
 
 
 if __name__ == '__main__':
