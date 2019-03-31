@@ -234,7 +234,9 @@ class GuiMovieToGif(tk.Tk):
         if not num:
             num = 1
         import uuid
-        name = str(uuid.uuid4()) + '-%04d.png'
+        name = str(uuid.uuid4())
+        self.datos['code_frame'] = name
+        name = name + '-%04d.png'
         #working file:
         working_file = os.path.join(self.dirpathmovies.get(), 'Thumbails')
         if not os.path.exists(working_file):
