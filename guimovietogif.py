@@ -305,7 +305,15 @@ class GuiMovieToGif(tk.Tk):
         print('create gif command ->', command)
         self.runCommand(command)
         #vamos a borrar los ficheros de imagen
-        code = name.split('-')
+        code = name.split('-')[0]
+        pattern = '^' + code
+        mypath = self.datos['working_file']
+        print('remove:')
+        for root, dirs, files in os.walk(mypath):
+            for file in filter(lambda x: re.match(pattern, x), files):
+                print(file)
+                os.remove(os.path.join(root, file))
+        '''
         code.pop()
         refcode=''
         for item in code:
@@ -318,7 +326,8 @@ class GuiMovieToGif(tk.Tk):
             if fnmatch.fnmatch(file.upper(), refcode + '*.png'):
                 print(file)
                 os.remove(os.path.join(self.datos['working_file'], file))
-        print('make_gif_f_frames')
+        '''
+        print('made_gif_f_frames')
 
 
 if __name__ == '__main__':
