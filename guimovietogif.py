@@ -20,6 +20,7 @@ class GuiMovieToGif(tk.Tk):
         #self.iconbitmap('Images/Kaleidoscope-alt.ico')
         self.iconbitmap('@Images/Business.xbm')
         self.protocol('WM_DELETE_WINDOW', self.confirmExit)
+        self.datos = {}
         self.toplayout = tk.LabelFrame(self)
         self.search_button=tk.Button(self.toplayout, text='...', command=self.search_directory)
         self.make_button= tk.Button(self.toplayout, text='Make', command=self.make_gif)
@@ -131,9 +132,11 @@ class GuiMovieToGif(tk.Tk):
     def make_gif(self):
         print('make gif instruction')
         self.statusvalor.set('make gif instruction')
+
         if os.path.exists(self.file_select.get()):
-            datos = self.info_from_video()
-            print('datos video ->', datos)
+            self.datos = self.info_from_video()
+            print('datos video ->', self.datos)
+            self.extract_frames(num=5)
 
 
     def confirmExit(self):
@@ -199,10 +202,11 @@ class GuiMovieToGif(tk.Tk):
                 video_info['fps'] = float(frame_rate)
                 print('fps ->', float(frame_rate))
 
-            matches2 = re.search(b'(?P<width>\s{1}\d+)x(?P<heigh>\d{2,3})', stdout)
+            matches2 = re.search(b' (?P<width>\d+)x(?P<heigh>\d{2,3}[, ])', stdout)
             if matches2:
+                print(matches2)
                 width = int(matches2['width'])
-                heigh = int(matches2['heigh'])
+                heigh = int(matches2['heigh'].replace(b',',b' '))
                 print('formato: ->', matches2, width, heigh)
                 video_info['formato'] = [width, heigh]
 
@@ -217,6 +221,33 @@ class GuiMovieToGif(tk.Tk):
             print(e.output)
 
         return video_info
+
+    def extract_frames(self, file=None, num=None):
+        '''
+        extract frames from file
+        file = file asignated, num = number of frames extract video to the gif
+        :return: None
+        '''
+        if not file:
+            file = self.file_select.get()
+        # obtener un nombre de fichero independiente del fichero y fichero de trabajo
+        if not num:
+            num = 1
+        import uuid
+        name = str(uuid.uuid4()) + '-%04d.png'
+        work_dir = os.path.join(self.dirpathmovies.get(), 'Thumbails', name)
+
+        #determinar los factores de la linea de comando.
+        command =['ffmpeg']
+        valor = self.datos['time']
+        if valor:
+            valor = valor * 1000 / (num + 1)
+        command.extend(['-ss', str(int(valor/1000)), '-i', '\"' + file + '\"', '-vf', 'fps=1/' + str(int(valor/1000))
+                           , '-vframes', str(num)
+                           , '\"' + work_dir + '\"', '-hide_banner'])
+        print('Linea de comando ->', command)
+        self.runCommand(command)
+        print('end extract_frames')
 
 
 if __name__ == '__main__':
