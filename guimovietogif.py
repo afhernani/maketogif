@@ -240,7 +240,7 @@ class GuiMovieToGif(tk.Tk):
         if not os.path.exists(working_file):
             os.mkdir(working_file)
         # ficheros de frames de salida
-        work_dir = os.path.join(working_file, 'Thumbails', name)
+        work_dir = os.path.join(working_file, name)
         #determinar los factores de la linea de comando.
         command = ['ffmpeg']
         valor = self.datos['time']
