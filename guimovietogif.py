@@ -235,16 +235,20 @@ class GuiMovieToGif(tk.Tk):
             num = 1
         import uuid
         name = str(uuid.uuid4()) + '-%04d.png'
-        work_dir = os.path.join(self.dirpathmovies.get(), 'Thumbails', name)
-
+        #working file:
+        working_file = os.path.join(self.dirpathmovies.get(), 'Thumbails')
+        if not os.path.exists(working_file):
+            os.mkdir(working_file)
+        # ficheros de frames de salida
+        work_dir = os.path.join(working_file, 'Thumbails', name)
         #determinar los factores de la linea de comando.
-        command =['ffmpeg']
+        command = ['ffmpeg']
         valor = self.datos['time']
         if valor:
             valor = valor * 1000 / (num + 1)
-        command.extend(['-ss', str(int(valor/1000)), '-i', '\"' + file + '\"', '-vf', 'fps=1/' + str(int(valor/1000))
+        command.extend(['-ss', str(int(valor/1000)), '-i', file, '-vf', 'fps=1/' + str(int(valor/1000))
                            , '-vframes', str(num)
-                           , '\"' + work_dir + '\"', '-hide_banner'])
+                           ,  work_dir, '-hide_banner'])
         print('Linea de comando ->', command)
         self.runCommand(command)
         print('end extract_frames')
