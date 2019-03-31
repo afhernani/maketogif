@@ -310,9 +310,13 @@ class GuiMovieToGif(tk.Tk):
         refcode=''
         for item in code:
             refcode += item + '-'
+        print('remove:')
+        print(refcode + '*.png')
         import fnmatch
         for file in os.listdir(self.datos['working_file']):
+            print(file)
             if fnmatch.fnmatch(file.upper(), refcode + '*.png'):
+                print(file)
                 os.remove(os.path.join(self.datos['working_file'], file))
         print('make_gif_f_frames')
 
