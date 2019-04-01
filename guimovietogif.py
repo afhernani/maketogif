@@ -11,7 +11,11 @@ import re
 import io
 import shutil
 import configparser
+import threading
 
+thread = threading
+bloquea = threading.Lock()
+isthread = False
 
 class GuiMovieToGif(tk.Tk):
     def __init__(self):
@@ -161,17 +165,33 @@ class GuiMovieToGif(tk.Tk):
             self.dirpathmovies.set(os.path.abspath(dirname))
             self.init_listbox(os.path.abspath(dirname))
 
-    def make_gif(self):
-        print('make gif instruction')
-        self.statusvalor.set('make gif instruction')
-
+    def make_thread(self):
+        global bloquea
+        global isthread
+        bloquea.acquire()
         if os.path.exists(self.file_select.get()):
             self.datos = self.info_from_video()
             print('datos video ->', self.datos)
             self.extract_frames(num=5)
             self.make_gif_f_frames()
             print('datos video ->', self.datos)
+        bloquea.release()
+        isthread = False
 
+    def make_gif(self):
+        print('make gif instruction')
+        self.statusvalor.set('make gif instruction')
+        global thread
+        global isthread
+        if isthread:
+            print('thread is alive')
+            return
+        thread = threading.Thread(target=self.make_thread)
+        if thread.isAlive():
+            print('esta tarea esta viva? ->', thread.isAlive)
+        thread.daemon = True
+        thread.start()
+        isthread = True
 
     def confirmExit(self):
         if messagebox.askokcancel('Quit', 'Are you sure you want to exit?'):
@@ -207,8 +227,10 @@ class GuiMovieToGif(tk.Tk):
 
     def info_from_video(self):
         print('extrac_images_from_videos')
-        command = ['ffmpeg', '-i', self.file_select.get()]
         video_info = {}
+        video_info['movie'] = self.file_select.get()
+        command = ['ffmpeg', '-i', video_info['movie']]
+
         try:
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             stdout, stderr = process.communicate()
@@ -264,7 +286,7 @@ class GuiMovieToGif(tk.Tk):
         :return: None
         '''
         if not file:
-            file = self.file_select.get()
+            file = self.datos['movie']
         # obtener un nombre de fichero independiente del fichero y fichero de trabajo
         if not num:
             num = 1
@@ -272,7 +294,7 @@ class GuiMovieToGif(tk.Tk):
         name = str(uuid.uuid4()) + '-%04d.png'
         self.datos['code_frame'] = name
         #working file:
-        working_file = os.path.join(self.dirpathmovies.get(), 'Thumbails')
+        working_file = os.path.join(os.path.dirname(self.datos['movie']), 'Thumbails')
         self.datos['working_file'] = working_file
         if not os.path.exists(working_file):
             os.mkdir(working_file)
@@ -299,8 +321,8 @@ class GuiMovieToGif(tk.Tk):
         working_file = self.datos['working_file']
         work_dir = os.path.join(working_file, name)
         command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir, '-vf', 'scale=' + scale ]
-        self.datos['file']= os.path.split(self.file_select.get())[-1]
-        file_out = os.path.join(self.dirpathmovies.get(), 'Thumbails', os.path.split(self.file_select.get())[-1] + '_thumbs_0000.gif')
+        self.datos['file']= os.path.split(self.datos['movie'])[-1]
+        file_out = os.path.join(os.path.dirname(self.datos['movie']), 'Thumbails', self.datos['file'] + '_thumbs_0000.gif')
         command.extend([file_out])
         print('create gif command ->', command)
         self.runCommand(command)
