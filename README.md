@@ -9,10 +9,8 @@ Usage: movie2gif [options] video-file
 
 Options:
 +  -h, --help            show this help message and exit
-+  -s START, --start=START
-                        Start time
-+  -d DURATION, --duration=DURATION
-                        Duration
++  -s START, --start=START 	Start time
++  -d DURATION, --duration=DURATION	Duration
 +  --fps=FPS             FPS
   --colors=COLORS       Number of colors
   --resize=RESIZE       Size wxh use 200:-1 for proportion h
@@ -35,6 +33,16 @@ Options:
     
 ### Mejoras.
 
-+	Depurar color, mono y gray, aunque en un futuro sean obciones a eliminar.
-+   Definir un numero n de imagenes para procesar la cantidad de imagenes a realizar.
-+   Hacer uso de tareas en los procesos.
+	+ Depurar color, mono y gray, aunque en un futuro sean obciones a eliminar.
+	+ Definir un numero n de imagenes para procesar la cantidad de imagenes a realizar.
+	+ Hacer uso de tareas en los procesos.
+
+# GUIMovieToGif
+## Entorno GUI de biblioteca Tk.
+### Con un entorno amigable seleccionamos el directorio donde se almacenan los  ficheros de video, seleccinamos el fichero a extraer, y click en make para crea un gif de 5 imagenes con formato original que se escala a un ancho de 200 pixel y altura proporcional.
+### Mejoras:
+	+ Dotarlo de subtareas para la extracción
+	+ Menu obciones con el numero de imagnes a extraer, una imagen especifica, y formato de salida..
+
+### Dependencias:
+	Se requiere tener instalado la aplicacion ffmpeg en el sistema, y configurada las rutas del mimo, ver: https://ffmpeg.org, 
