@@ -184,11 +184,9 @@ class GuiMovieToGif(tk.Tk):
         global thread
         global isthread
         if isthread:
-            print('thread is alive')
+            print('>> thread is alive')
             return
         thread = threading.Thread(target=self.make_thread)
-        if thread.isAlive():
-            print('esta tarea esta viva? ->', thread.isAlive)
         thread.daemon = True
         thread.start()
         isthread = True
