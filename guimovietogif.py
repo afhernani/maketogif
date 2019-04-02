@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/python3
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 
 import tkinter as tk
 from tkinter import ttk
@@ -12,20 +12,21 @@ import io
 import shutil
 import configparser
 import threading
-
+from ToolTip import *
 
 class Movie:
-    def __init__(self, file):
+    def __init__(self, file, remove=True):
+        self.datos = {'time': 0, 'fps': 1, 'width': 1, 'height': 1, 'bitrate': 1, 'num': 1 }
         self.exists = False
         self.file=" "
         self.path_file=" "
-        self.datos = {'time': 0, 'fps': 1, 'width': 1, 'height': 1, 'bitrate': 1, 'num': 1 }
+        self.datos['remove'] = remove
         if os.path.exists(file):
             self.exists = True
             self.file = os.path.split(file)[-1]
             self.path_file = os.path.dirname(file)
             self.datos['file'] = self.file
-            self.datos[ 'path_file'] = self.path_file
+            self.datos['path_file'] = self.path_file
             self.datos['exists'] = self.exists
 
 
@@ -160,15 +161,16 @@ class Movie:
         command.extend([file_out])
         print('create gif command ->', command)
         self.runCommand(command)
-        #vamos a borrar los ficheros de imagen
-        code = name.split('-')[0]
-        pattern = '^' + code
-        mypath = self.datos['working_file']
-        print('remove:')
-        for root, dirs, files in os.walk(mypath):
-            for file in filter(lambda x: re.match(pattern, x), files):
-                print(file)
-                os.remove(os.path.join(root, file))
+        #vamos a borrar los ficheros de imagen segun remove
+        if self.datos['remove']:
+            code = name.split('-')[0]
+            pattern = '^' + code
+            mypath = self.datos['working_file']
+            print('remove:')
+            for root, dirs, files in os.walk(mypath):
+                for file in filter(lambda x: re.match(pattern, x), files):
+                    print(file)
+                    os.remove(os.path.join(root, file))
         '''
         code.pop()
         refcode=''
@@ -208,6 +210,7 @@ class GuiMovieToGif(tk.Tk):
         self.iconbitmap('@Images/Business.xbm')
         self.protocol('WM_DELETE_WINDOW', self.confirmExit)
         self.datos = {}
+        self.chimgvar = tk.IntVar()
         self.toplayout = tk.LabelFrame(self)
         self.search_button=tk.Button(self.toplayout, text='...', command=self.search_directory)
         self.make_button= tk.Button(self.toplayout, text='Make', command=self.make_gif)
@@ -225,10 +228,19 @@ class GuiMovieToGif(tk.Tk):
 
         self.box_list = tk.Listbox(self)
         self.box_list.pack(fill=tk.BOTH, expand=True)
+        
+        self.bottomlayout = tk.LabelFrame(self)
+
+        self.chekbuttonimg = tk.Checkbutton(self.bottomlayout, text='img', variable=self.chimgvar, command=self.check_img)
+        self.chekbuttonimg.select()
+        createToolTip(self.chekbuttonimg, "select for remove files images")
 
         self.statusvalor = tk.StringVar(value="processing ...")
-        self.status = tk.Label(self, text="processing…", textvar=self.statusvalor, bd=1, anchor='w', relief='sunken') #
-        self.status.pack(side='bottom', fill='x')
+        self.status = tk.Label(self.bottomlayout, text="processing…", textvar=self.statusvalor, bd=1, anchor='w', relief='sunken') #
+
+        self.chekbuttonimg.pack(side=tk.RIGHT)
+        self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
+        self.bottomlayout.pack(side='bottom', fill='x')
 
 
         # adicionamos utilidades con el raton y teclado para la lisbox.
@@ -239,6 +251,9 @@ class GuiMovieToGif(tk.Tk):
         self.file_select = tk.StringVar()
         self.setingfile = 'seting.ini'
         self.get_init_status()
+
+    def check_img(self):
+        print('variable check is', bool(self.chimgvar.get()))
 
     def get_init_status(self):
         '''
@@ -351,7 +366,7 @@ class GuiMovieToGif(tk.Tk):
         print('make gif instruction')
         self.statusvalor.set('make gif instruction')
         if os.path.exists(self.file_select.get()):
-            movie = Movie(self.file_select.get())
+            movie = Movie(self.file_select.get(), bool(self.chimgvar.get()))
             print(movie)
             movie.run()
         else:
@@ -378,11 +393,11 @@ class GuiMovieToGif(tk.Tk):
         """ listar los ficheros en el directorio."""
         # borramos todos los elementos
         self.box_list.delete(0, tk.END)
+        extensions = ['.mp4', '.MP4', '.avi', '.AVI', '.flv', '.FLV','.mpg','.MPG']
         for file in os.listdir(search_dir):
-            if file.endswith(".mp4"):
-                self.box_list.insert(0, file)
-            if file.endswith(".flv"):
-                self.box_list.insert(tk.END, file)
+            for extension in extensions:
+                if file.endswith(extension):
+                    self.box_list.insert(0, file)
         self.box_list.selection_set(0)
 
 
