@@ -393,11 +393,10 @@ class GuiMovieToGif(tk.Tk):
         """ listar los ficheros en el directorio."""
         # borramos todos los elementos
         self.box_list.delete(0, tk.END)
-        extensions = ['.mp4', '.MP4', '.avi', '.AVI', '.flv', '.FLV','.mpg','.MPG']
+        extensions = ('.mp4', '.MP4', '.avi', '.AVI', '.flv', '.FLV','.mpg','.MPG')
         for file in os.listdir(search_dir):
-            for extension in extensions:
-                if file.endswith(extension):
-                    self.box_list.insert(0, file)
+            if file.endswith(extensions):
+                self.box_list.insert(0, file)
         self.box_list.selection_set(0)
 
 
