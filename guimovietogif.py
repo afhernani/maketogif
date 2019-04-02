@@ -371,17 +371,6 @@ class GuiMovieToGif(tk.Tk):
             movie.run()
         else:
             return
-        '''
-        global thread
-        global isthread
-        if isthread:
-            print('>> thread is alive')
-            return
-        thread = threading.Thread(target=self.make_thread)
-        thread.daemon = True
-        thread.start()
-        isthread = True
-        '''
 
     def confirmExit(self):
         if messagebox.askokcancel('Quit', 'Are you sure you want to exit?'):
