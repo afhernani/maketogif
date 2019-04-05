@@ -14,12 +14,13 @@ import configparser
 import threading
 from ToolTip import *
 
+
 class Movie:
     def __init__(self, file, remove=True):
-        self.datos = {'time': 0, 'fps': 1, 'width': 1, 'height': 1, 'bitrate': 1, 'num': 1 }
+        self.datos = {'time': 0, 'fps': 1, 'width': 1, 'height': 1, 'bitrate': 1, 'num': 1}
         self.exists = False
-        self.file=" "
-        self.path_file=" "
+        self.file = " "
+        self.path_file = " "
         self.datos['remove'] = remove
         if os.path.exists(file):
             self.exists = True
@@ -29,8 +30,7 @@ class Movie:
             self.datos['path_file'] = self.path_file
             self.datos['exists'] = self.exists
 
-
-    def __str__(self):
+    def __str__(self, *args, **kwargs):
         return str(self.datos)
 
     def printOutput(self, string):
@@ -81,19 +81,18 @@ class Movie:
                 print('fps ->', matches1['fps'])
                 frame_rate = matches1['fps'].split(b' ')[0]
                 self.datos['fps'] = float(frame_rate)
-                print('fps ->', self.datos['fps'] )
+                print('fps ->', self.datos['fps'])
 
             matches2 = re.search(b' (?P<width>\d+)x(?P<height>\d{2,3}[, ])', stdout)
             if matches2:
                 print(matches2)
                 width = int(matches2['width'])
-                height = int(matches2['height'].replace(b',',b' '))
+                height = int(matches2['height'].replace(b',', b' '))
                 print('formato: ->', matches2, width, height)
                 self.datos['width'] = width
                 self.datos['height'] = height
 
-
-            #averiaguar el ratio.
+            # averiaguar el ratio.
             matches3 = re.search(b'bitrate:\s{1}(?P<bitrate>\d+?)\s{1}', stdout)
             if matches3:
                 print('matches3 ->', matches3['bitrate'])
@@ -103,7 +102,6 @@ class Movie:
             print(e.output)
         print('extrac informacion from ->', self.datos['file'])
         print(self.datos)
-
 
     def extract_frames(self, file=None, num=None):
         '''
@@ -123,26 +121,25 @@ class Movie:
         import uuid
         name = str(uuid.uuid4()) + '-%04d.png'
         self.datos['code_frame'] = name
-        #working file:
+        # working file:
         working_file = os.path.join(self.datos['path_file'], 'Thumbails')
         self.datos['working_file'] = working_file
         if not os.path.exists(working_file):
             os.mkdir(working_file)
         # ficheros de frames de salida
         work_dir = os.path.join(working_file, name)
-        #determinar los factores de la linea de comando.
+        # determinar los factores de la linea de comando.
         command = ['ffmpeg']
         valor = self.datos['time']
         if valor:
             valor = valor * 1000 / (num + 1)
-        command.extend(['-ss', str(int(valor/1000)), '-i', file, '-vf', 'fps=1/' + str(int(valor/1000))
+        command.extend(['-ss', str(int(valor / 1000)), '-i', file, '-vf', 'fps=1/' + str(int(valor / 1000))
                            , '-vframes', str(num)
-                           ,  work_dir, '-hide_banner'])
+                           , work_dir, '-hide_banner'])
         print('Linea de comando ->', command)
         self.runCommand(command)
         print('end extract_frames from ->', self.datos['file'])
         print(self.datos)
-
 
     def make_gif_f_frames(self, framerate=1, scale='200:-1'):
         '''
@@ -156,12 +153,12 @@ class Movie:
         name = self.datos['code_frame']
         working_file = self.datos['working_file']
         work_dir = os.path.join(working_file, name)
-        command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir, '-vf', 'scale=' + scale ]
+        command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir, '-vf', 'scale=' + scale]
         file_out = os.path.join(working_file, self.datos['file'] + '_thumbs_0000.gif')
         command.extend([file_out])
         print('create gif command ->', command)
         self.runCommand(command)
-        #vamos a borrar los ficheros de imagen segun remove
+        # vamos a borrar los ficheros de imagen segun remove
         if self.datos['remove']:
             code = name.split('-')[0]
             pattern = '^' + code
@@ -189,7 +186,7 @@ class Movie:
 
     def make_gif(self):
         if self.datos['exists']:
-            self. info_from_video()
+            self.info_from_video()
             print('datos generales ->', self.datos)
             self.extract_frames(num=5)
             self.make_gif_f_frames()
@@ -206,18 +203,18 @@ class GuiMovieToGif(tk.Tk):
         super().__init__()
         self.title("Make gif from movie: ")
         self.geometry("400x300")
-        #self.iconbitmap('Images/Kaleidoscope-alt.ico')
+        # self.iconbitmap('Images/Kaleidoscope-alt.ico')
         self.iconbitmap('@Images/Business.xbm')
         self.protocol('WM_DELETE_WINDOW', self.confirmExit)
         self.datos = {}
         self.chimgvar = tk.IntVar()
         self.toplayout = tk.LabelFrame(self)
-        self.search_button=tk.Button(self.toplayout, text='...', command=self.search_directory)
-        self.make_button= tk.Button(self.toplayout, text='Make', command=self.make_gif)
+        self.search_button = tk.Button(self.toplayout, text='...', command=self.search_directory)
+        self.make_button = tk.Button(self.toplayout, text='Make', command=self.make_gif)
         dirpath = os.path.abspath(os.path.split(os.path.abspath(__file__))[0])
         self.dirpathmovies = tk.StringVar(value=dirpath)
         print(self.dirpathmovies.get())
-        self.entrydirmovies= tk.Entry(self.toplayout, textvar=self.dirpathmovies)
+        self.entrydirmovies = tk.Entry(self.toplayout, textvar=self.dirpathmovies)
 
         self.entrydirmovies.pack(side=tk.LEFT, fill=tk.X, expand=1)
 
@@ -228,20 +225,21 @@ class GuiMovieToGif(tk.Tk):
 
         self.box_list = tk.Listbox(self)
         self.box_list.pack(fill=tk.BOTH, expand=True)
-        
+
         self.bottomlayout = tk.LabelFrame(self)
 
-        self.chekbuttonimg = tk.Checkbutton(self.bottomlayout, text='img', variable=self.chimgvar, command=self.check_img)
+        self.chekbuttonimg = tk.Checkbutton(self.bottomlayout, text='img', variable=self.chimgvar,
+                                            command=self.check_img)
         self.chekbuttonimg.select()
         createToolTip(self.chekbuttonimg, "select for remove files images")
 
         self.statusvalor = tk.StringVar(value="processing ...")
-        self.status = tk.Label(self.bottomlayout, text="processing…", textvar=self.statusvalor, bd=1, anchor='w', relief='sunken') #
+        self.status = tk.Label(self.bottomlayout, text="processing…", textvar=self.statusvalor, bd=1, anchor='w',
+                               relief='sunken')  #
 
         self.chekbuttonimg.pack(side=tk.RIGHT)
         self.status.pack(side=tk.LEFT, fill=tk.X, expand=1)
         self.bottomlayout.pack(side='bottom', fill='x')
-
 
         # adicionamos utilidades con el raton y teclado para la lisbox.
         self.box_list.bind('<Double-Button-1>', self.double_button_box_list)
@@ -264,7 +262,7 @@ class GuiMovieToGif(tk.Tk):
             # inicializa la lista directorio actual
             self.init_listbox(self.dirpathmovies.get())
             return
-        config= configparser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.read(self.setingfile)
         dirpathmovies = config.get('Setings', 'dirpathmovies')
         if os.path.exists(dirpathmovies):
@@ -293,20 +291,20 @@ class GuiMovieToGif(tk.Tk):
          select item with keyboard Up / Down
         '''
         print('presskey ->', event)
-        print('len = ', len(self.box_list.get(0,'end'))-1)
-        w=event.widget
+        print('len = ', len(self.box_list.get(0, 'end')) - 1)
+        w = event.widget
         index = int(w.curselection()[0])
-        value=w.get(index)
+        value = w.get(index)
         print('valor =', value)
         iter = 0
         if event.keysym == 'Up' and index > 0:
-            iter = index-1
+            iter = index - 1
             self.box_list.selection_clear(index)
             self.box_list.selection_set(iter)
             self.selected_item_path(iter)
             print("selected ->", w.get(iter))
-        if event.keysym == 'Down' and index < (len(self.box_list.get(0,'end'))-1):
-            iter = index+1
+        if event.keysym == 'Down' and index < (len(self.box_list.get(0, 'end')) - 1):
+            iter = index + 1
             self.box_list.selection_clear(index)
             self.box_list.selection_set(iter)
             self.selected_item_path(iter)
@@ -338,7 +336,6 @@ class GuiMovieToGif(tk.Tk):
         item = self.box_list.nearest(event.y)
         print('valor =', self.box_list.get(item))
         self.selected_item_path(item)
-
 
     def double_button_box_list(self, event):
         print('double_button_box_list')
@@ -382,7 +379,7 @@ class GuiMovieToGif(tk.Tk):
         """ listar los ficheros en el directorio."""
         # borramos todos los elementos
         self.box_list.delete(0, tk.END)
-        extensions = ('.mp4', '.MP4', '.avi', '.AVI', '.flv', '.FLV','.mpg','.MPG')
+        extensions = ('.mp4', '.MP4', '.avi', '.AVI', '.flv', '.FLV', '.mpg', '.MPG')
         for file in os.listdir(search_dir):
             if file.endswith(extensions):
                 self.box_list.insert(0, file)
@@ -390,7 +387,6 @@ class GuiMovieToGif(tk.Tk):
 
 
 if __name__ == '__main__':
-
     print('init process: ')
     app = GuiMovieToGif()
     app.mainloop()
