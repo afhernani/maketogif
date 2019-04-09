@@ -21,6 +21,7 @@ class Movie:
             self.datos['file'] = self.file
             self.datos['path_file'] = self.path_file
             self.datos['exists'] = self.exists
+            self.datos['sucess'] = False
 
     def __str__(self, *args, **kwargs):
         return str(self.datos)
@@ -92,6 +93,8 @@ class Movie:
 
         except subprocess.CalledProcessError as e:
             print(e.output)
+            return
+        self.datos['sucess'] = True
         print('extrac informacion from ->', self.datos['file'])
         print(self.datos)
 
@@ -102,6 +105,9 @@ class Movie:
         :return: None
         '''
         print('extract frames from ->', self.datos['file'])
+        if not self.datos['sucess']:
+            print('no se pudo extraer informacion de', self.datos['file'])
+            return
         if not self.datos['exists']:
             print('no se pudo extraer imagenes del fichero', self.datos['file'])
             return
@@ -139,6 +145,9 @@ class Movie:
         :return:
         '''
         print('make gif from ->', self.datos['file'])
+        if not self.datos['sucess']:
+            print('no se pudo extraer informacion de', self.datos['file'])
+            return
         if not self.datos['exists']:
             print('no se puedo crear el gif desde las imagenes de ->', self.datos['file'])
             return
