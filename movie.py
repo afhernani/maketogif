@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
 import os
@@ -189,7 +189,7 @@ class Movie:
         if self.datos['exists']:
             self.info_from_video()
             print('datos generales ->', self.datos)
-            self.extract_frames(num=5)
+            self.extract_frames(num=16)
             self.make_gif_f_frames()
             print('datos generales ->', self.datos)
 
