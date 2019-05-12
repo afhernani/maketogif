@@ -6,9 +6,14 @@ import re
 import subprocess
 import threading
 
+__autor__ = 'Hernani Aleman Ferraz'
+__email__ = 'afhernani@gmail.com'
+__apply__ = 'commun for autogif, guimovietogif'
+__version__ = 1.0
 
 class Movie:
     def __init__(self, file, remove=True):
+        self.widget = None
         self.datos = {'time': 0, 'fps': 1, 'width': 1, 'height': 1, 'bitrate': 1, 'num': 1}
         self.exists = False
         self.file = " "
@@ -130,8 +135,10 @@ class Movie:
         command = ['ffmpeg']
         valor = self.datos['time']
         if valor:
-            valor = valor * 1000 / (num + 1)
-        command.extend(['-ss', str(int(valor / 1000)), '-i', file, '-vf', 'fps=1/' + str(int(valor / 1000))
+            valor = valor / (num + 1)
+            if valor < 1: # no puede ser ziro
+                valor = 1
+        command.extend(['-ss', str(int(valor)), '-i', file, '-vf', 'fps=1/' + str(int(valor))
                            , '-vframes', str(num)
                            , work_dir, '-hide_banner'])
         print('Linea de comando ->', command)
@@ -192,11 +199,15 @@ class Movie:
             self.extract_frames(num=16)
             self.make_gif_f_frames()
             print('datos generales ->', self.datos)
+            if self.widget is not None:
+                self.widget.event_generate('<<food>>', when='tail')
 
     def run(self):
         thread = threading.Thread(target=self.make_gif)
         thread.daemon = True
         thread.start()
 
-
+    def setwidget(self, widget=None):
+        if widget is not None:
+            self.widget = widget
 
