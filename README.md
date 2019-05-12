@@ -46,3 +46,14 @@ Options:
 
 ### Dependencias:
 	Se requiere tener instalado la aplicacion ffmpeg en el sistema, y configurada las rutas del mimo, ver: https://ffmpeg.org, 
+
+# autogif.py
+## Entorno GUI de biblioteca Tk.
+### Con un entorno amigable seleccionamos el directorio donde se almacenan los  ficheros de video, picamos en make y automáticamente construye todos los gif pertenecientes a los ficheros que estén incluidos en el directorio seleccionado.
+### Mejoras:
+	+ Dotado de subtareas para la extracción
+    + Posee una pausa, para no sobrecargar el sitema (5 seg) que da un retrazo en la actualización del gui
+	+ Menu obciones con el numero de imagnes a extraer, una imagen especifica, y formato de salida..
+
+### Dependencias:
+	Se requiere tener instalado la aplicacion ffmpeg en el sistema, y configurada las rutas del mimo, ver: https://ffmpeg.org, 
