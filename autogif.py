@@ -76,7 +76,7 @@ class GuiMovieToGif(tk.Tk):
             # cogemos el 1 elemento que lo eliminamos de la lista.
             item = self.list_files_not_makegif.pop(0)
             self.file_select.set(os.path.join(self.dirpathmovies.get(), item))
-            self.statusvalor.set('>> next_movie: ' + item)
+            self.statusvalor.set('>> next_movie: ' + item + ' | len: '+ str(len(self.list_files_not_makegif)))
             self.update()
             time.sleep(5)
             try:
@@ -86,6 +86,9 @@ class GuiMovieToGif(tk.Tk):
                 self.movie.run()
             except Exception as ex:
                 print(ex)
+        else:
+            self.statusvalor.set('>> thread finished.')
+
 
 
     def check_img(self):
@@ -219,7 +222,7 @@ class GuiMovieToGif(tk.Tk):
                 # cogemos el 1 elemento que lo eliminamos de la lista.
                 item = self.list_files_not_makegif.pop(0)
                 self.file_select.set(os.path.join(self.dirpathmovies.get(), item))
-                self.statusvalor.set('>> next_movie: ' + item)
+                self.statusvalor.set('>> next_movie: ' + item + ' | len: '+ str(len(self.list_files_not_makegif)))
                 # print(self.file_select.get())
                 try:
                     self.movie = Movie(self.file_select.get(), bool(self.chimgvar.get()))
@@ -228,7 +231,9 @@ class GuiMovieToGif(tk.Tk):
                     self.movie.run()
                 except Exception as ex:
                     print(ex)
-            
+            else:
+                self.statusvalor.set('>> anything to make: ' )
+
 
     def confirmExit(self):
         if messagebox.askokcancel('Quit', 'Are you sure you want to exit?'):
