@@ -13,6 +13,7 @@ __version__ = 1.0
 
 class Movie:
     def __init__(self, file, remove=True):
+        self.thread = None
         self.widget = None
         self.datos = {'time': 0, 'fps': 1, 'width': 1, 'height': 1, 'bitrate': 1, 'num': 1}
         self.exists = False
@@ -106,8 +107,9 @@ class Movie:
     def extract_frames(self, file=None, num=None):
         '''
         extract frames from file
+        param:
         file = file asignated, num = number of frames extract video to the gif
-        :return: None
+        return: Nathing, make num of image at directory thumbails maked
         '''
         print('extract frames from ->', self.datos['file'])
         if not self.datos['sucess']:
@@ -146,10 +148,12 @@ class Movie:
         print('end extract_frames from ->', self.datos['file'])
         print(self.datos)
 
-    def make_gif_f_frames(self, framerate=1, scale='200:-1'):
+    def make_gif_f_frames(self, framerate=1, scale='320:-1'):
         '''
-        make a gif from cedec frame
-        :return:
+        make a gif from cedec frames
+        param:
+            framerate=1, scale=Noen, xample: '200:-1' keep dimension format image
+        return: Nothing, make file gif in ruth
         '''
         print('make gif from ->', self.datos['file'])
         if not self.datos['sucess']:
@@ -161,7 +165,12 @@ class Movie:
         name = self.datos['code_frame']
         working_file = self.datos['working_file']
         work_dir = os.path.join(working_file, name)
-        command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir, '-vf', 'scale=' + scale]
+        command = ['ffmpeg', '-y', '-framerate', str(framerate), '-i', work_dir] #, '-vf', 'scale=' + scale]
+        
+        if scale: # add scale if not nathing
+            command2 = ['-vf', 'scale=' + scale]
+            command.extend(command2)
+        
         file_out = os.path.join(working_file, self.datos['file'] + '_thumbs_0000.gif')
         command.extend([file_out])
         print('create gif command ->', command)
@@ -194,18 +203,32 @@ class Movie:
 
     def make_gif(self):
         if self.datos['exists']:
-            self.info_from_video()
-            print('datos generales ->', self.datos)
-            self.extract_frames(num=16)
-            self.make_gif_f_frames()
+            try:
+                self.info_from_video()
+                print('datos generales ->', self.datos)
+                try:
+                    self.extract_frames(num=16)
+                    try:
+                        self.make_gif_f_frames()
+                    except Exception as e:
+                        print('Exception make gif from frames', str(e.args))
+                except Exception as e:
+                    print('Exception extract_frames', str(e.args))
+            except Exception as e:
+                print('Exception info_from_video', str(e.args))
             print('datos generales ->', self.datos)
             if self.widget is not None:
                 self.widget.event_generate('<<food>>', when='tail')
 
     def run(self):
-        thread = threading.Thread(target=self.make_gif)
-        thread.daemon = True
-        thread.start()
+        self.thread = threading.Thread(target=self.make_gif)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def isAlive(self):
+        if self.thread is None:
+            return False
+        return self.thread.isAlive()
 
     def setwidget(self, widget=None):
         if widget is not None:
