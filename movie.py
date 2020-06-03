@@ -82,7 +82,7 @@ class Movie:
                 self.datos['fps'] = float(frame_rate)
                 print('fps ->', self.datos['fps'])
 
-            matches2 = re.search(b' (?P<width>\d+)x(?P<height>\d{2,3}[, ])', stdout)
+            matches2 = re.search(b' (?P<width>\d+)x(?P<height>\d{2,4}[, ])', stdout)
             if matches2:
                 print(matches2)
                 width = int(matches2['width'])
